@@ -5,6 +5,18 @@ const app = express();
 
 const customers = [];
 
+app.get("/statement", (request, response) => {
+    const {cpf} = request.headers;
+
+    const customer = customers.find((customer) => customer.cpf === cpf);
+
+    if (!customer){
+        return response.status(400).json({error: "Customer not found!!"});
+    }
+
+    return response.send(customer.statement);
+});
+
 app.use(express.json());
 app.post("/account", (request, response) => {
     const {cpf, name} = request.body;
