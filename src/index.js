@@ -5,7 +5,8 @@ const app = express();
 
 const customers = [];
 
-app.get("/statement", (request, response) => {
+//MIDDLEWARE
+function verifyIfExistsAccountCPF(request, response, next) {
     const {cpf} = request.headers;
 
     const customer = customers.find((customer) => customer.cpf === cpf);
@@ -14,10 +15,35 @@ app.get("/statement", (request, response) => {
         return response.status(400).json({error: "Customer not found!!"});
     }
 
+    request.customer = customer;
+
+    return next();
+}
+
+app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
+    const {customer} = request;    
     return response.send(customer.statement);
 });
 
+
 app.use(express.json());
+
+app.post("/deposit", verifyIfExistsAccountCPF, (request, response) => {
+    const {description, amount} = request.body;
+    const {customer} = request;
+
+    const statementOperation = {
+        description,
+        amount,
+        created_at: new Date(),
+        type: "credit" 
+    };
+
+    customer.statement.push(statementOperation);
+
+    return response.status(201).send();
+});
+
 app.post("/account", (request, response) => {
     const {cpf, name} = request.body;
         
