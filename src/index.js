@@ -27,7 +27,7 @@ function getBalance(statement) {
         } else {
             return acc - operation.amount;
         }
-        
+
     }, 0);
     
     return balance;
@@ -38,6 +38,18 @@ app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {
     return response.send(customer.statement);
 });
 
+app.get("/statement/date", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;    
+    const { date } = request.query;
+
+    const dateFormat = new Date(date + " 00:00");
+    const statement = customer.statement.filter(
+        (statement) => statement.created_at.toDateString() ===
+        new Date(dateFormat).toDateString()
+    );
+    
+    return response.json(statement);
+});
 
 app.use(express.json());
 
