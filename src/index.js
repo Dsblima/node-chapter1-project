@@ -57,6 +57,24 @@ app.get("/statement/date", verifyIfExistsAccountCPF, (request, response) => {
     return response.json(statement);
 });
 
+app.get("/balance", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+
+    const balance = getBalance(customer.statement);
+
+    return response.json(balance);
+});
+
+app.delete("/account", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+
+    const indexCustomer = customers.findIndex(customerIndex => customerIndex.cpf === customer.cpf)
+
+    customers.splice(indexCustomer, 1);
+
+    return response.status(200).send(customers);
+});
+
 app.use(express.json());
 
 app.post("/account", (request, response) => {
